@@ -28,6 +28,7 @@
       output.innerHTML = ''
       if(pattern.length != 7) {
         output.innerHTML = `Enter exactly 7 characters`
+        return
       }
     for (const c of pattern) {
       if (!goal.includes(c.toUpperCase())) {
