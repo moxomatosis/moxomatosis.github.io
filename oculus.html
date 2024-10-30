@@ -1,0 +1,77 @@
+  <script>
+  const goal = 'ROYGBIV';
+  const goalLower = goal.toLowerCase().split('');
+  const goalUpper = goal.toUpperCase().split('');
+
+  function allShifts(shifts, pattern) {
+    const results = {};
+    for (let i = 0; i < pattern.length; i++) {
+      const newPattern = [...pattern];
+      const char = pattern[i].toUpperCase() === pattern[i] ? pattern[i].toLowerCase() : pattern[i].toUpperCase();
+      const newPos = (i + 2) % (pattern.length - 1) + 1;
+      newPattern.splice(i, 1);
+      newPattern.splice(newPos, 0, char);
+
+      let rotatedPattern = [...newPattern];
+      while (rotatedPattern[0] !== 'R' && rotatedPattern[0] !== 'r') {
+        rotatedPattern.push(rotatedPattern.shift());
+      }
+      results[shifts + pattern[i]] = rotatedPattern;
+    }
+    return results;
+  }
+
+  function solve() {
+      let inp = document.getElementById('colors')
+      let output = document.getElementById('output')
+      let pattern = inp.value
+      output.innerHTML = ''
+      if(pattern.length != 7) {
+        output.innerHTML = `Enter exactly 7 characters`
+      }
+    for (const c of pattern) {
+      if (!goal.includes(c.toUpperCase())) {
+        console.error(`Invalid color ${c}`);
+        output.innerHTML = `Invalid color ${c}`
+        process.exit(1);
+      }
+    }
+
+    console.log('origin: ' + pattern);
+    let loops = 1;
+    const states = [];
+    states[0] = allShifts('', pattern);
+
+    while (loops < 14) {
+      for (const [shifts, state] of Object.entries(states[loops - 1])) {
+        const newStates = allShifts(shifts, state);
+        if (Object.values(newStates).some(s => s.join('') === goalLower.join(''))) {
+          const message = `${Object.keys(newStates).filter(k => newStates[k].join('') === goalLower.join(''))} => ${goalLower.join('')}`
+          console.log(message);
+          output.innerHTML += message
+          return
+        }
+        if (Object.values(newStates).some(s => s.join('') === goalUpper.join(''))) {
+          const message = `${Object.keys(newStates).filter(k => newStates[k].join('') === goalUpper.join(''))} => ${goalUpper.join('')}`
+          console.log(message);
+          output.innerHTML += message
+          return
+        }
+        if (!states[loops]) {
+          states[loops] = {};
+        }
+        Object.assign(states[loops], newStates);
+      }
+      loops++;
+    }
+
+    console.log("Couldn't find a solution");
+    output.innerHTML = "Couldn't find a solution"
+  }
+
+  </script>
+  <html>
+  <input id="colors"></input>
+  <button onClick="solve()">Solve</button>
+  <div id="output"></div>
+  </html>
